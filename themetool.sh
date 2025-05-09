@@ -3,7 +3,7 @@
 
 ## ======== source =========
 triconf="$HOME/.config/triton/triton.conf"
-srcs=("./helpers.sh" "${triconf}")
+srcs=( "$(dirname "$0")/helpers.sh" "${triconf}")
 for element in ${srcs[@]}; do
   if ! test -f "$element"; then
     echo "WARNING: could not source ${element} for \"$0\"."

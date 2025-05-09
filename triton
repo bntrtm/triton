@@ -2,9 +2,9 @@
 # Triton is a program used to easily do...pretty much anything I want.
 
 # =========== SOURCE ===========
-source ./config.sh
-source ./helpers.sh
-source ./themetool.sh
+source "$(dirname "$0")/config.sh"
+source "$(dirname "$0")/helpers.sh"
+source "$(dirname "$0")/themetool.sh"
 
 # =========== FUNCTIONS ============
 

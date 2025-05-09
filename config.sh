@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./helpers.sh
+source "$(dirname "$0")/helpers.sh"
 
 # creates a config file under the expected directory: $HOME/.config/triton/triton.conf
 function write_config_file () {
