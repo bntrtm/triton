@@ -1,14 +1,14 @@
 #!/bin/bash
 
 function error () {
-  echo -n "ERROR: "; echo -e "$1" # error messsage
+  echo -n "ERROR: "; echo -e "$1" # error message
   exit 1
 }
 
 # read user yes-or-no input
 function ask () {
   read -p "$1 (Y/n): " response
-  [ -z "$response" ] || [ "$response" = "y" ]
+  [ -z "$response" ] || [ "$response" = "Y" ]
 }
 
 # run until user-specified directory for $1 does indeed exist, then set ref $2 to that path

@@ -137,7 +137,7 @@ function write_current_theme_dir () {
     mkdir "${dir_triton}/current_theme"
     touch "${dir_triton}/current_theme/.stow"
   else
-    error "Required directory {dir_triton} not found."
+    error "Required directory ${dir_triton} not found."
   fi
 }
 
