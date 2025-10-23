@@ -7,11 +7,12 @@ function write_config_file () {
   if ! test -f "${triconf}"; then
     # make directory, create file
     mkdir -p "$HOME/.config/triton" && touch ${triconf}
-    cat ./default_triton.conf > ${triconf}
+    default="$(dirname "$0")/default_triton.conf"
+    cat ${default} > ${triconf};
     echo "Wrote file: ${triconf}"
     user_dir_dotfiles=""
-    askpath "dotfiles" user_dir_dotfiles
-    sed -i "s@^dir_dotfiles=.*@dir_dotfiles=${user_dir_dotfiles}@" "${triconf}"
+    #askpath "dotfiles" user_dir_dotfiles
+    #sed -i "s@^dir_dotfiles=.*@dir_dotfiles=${user_dir_dotfiles}@" "${triconf}"
   else
     echo "DENIED: ${triconf} already written."
   fi

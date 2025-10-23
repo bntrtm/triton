@@ -4,14 +4,9 @@
 # =========== SOURCE ===========
 source "$(dirname "$0")/config.sh"
 source "$(dirname "$0")/helpers.sh"
-source "$(dirname "$0")/themetool.sh"
+#source "$(dirname "$0")/themetool.sh"
 
 # =========== FUNCTIONS ============
-
-#function error () {
-#  echo -n "ERROR: "; echo -e "$1" # error messsage
-#  exit 1
-#}
 
 function usage () {
   echo "Usage: $0 themes [ init | set | current | ls ]"
@@ -41,6 +36,7 @@ case $1 in
     usage; exit 0
     ;;
   "themes")
+    source "$(dirname "$0")/themetool.sh"
     case $2 in
       "set")
         if themename_exists "$3"; then

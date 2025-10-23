@@ -1,5 +1,5 @@
 #!/bin/bash
-# this tool can print available triton-defined themes, or change current dotfile theme.
+# this tool can print available triton-defined themes, or change current theme.
 
 ## ======== source =========
 triconf="$HOME/.config/triton/triton.conf"
@@ -120,7 +120,7 @@ function write_new_current_theme () {
 }
 
 function unstow_current_theme () {
-# stow symlinks to current_theme contents in the dir_dotfiles directory
+# unstow symlinks related to the theme last generated and set by the user
   if [ -d "${dir_current_theme}" ]; then
     for dir in "${dir_current_theme}"/*/; do
       stow -D -t "$HOME" -d "${dir_current_theme}" "$(basename "$dir")/"
@@ -199,10 +199,10 @@ if ! test -f "${triconf}"; then
 fi
 # check whether a dir_themes variable is specified in triton.conf
 if ! valid_dir "${dir_themes}"; then
-  if valid_dir "${dir_dotfiles}/.triton/.themes"; then
-    echo "NOTICE: .themes directory \"$dir_themes\" specified in triton.conf DOES NOT EXIST. "
+  if valid_dir "$HOME/.triton/.themes"; then
+    echo "NOTICE: .themes directory \"${dir_themes}\" specified in triton.conf DOES NOT EXIST. "
     if ask "A .themes directory was found in expected directory: ${dir_triton}. Would you like to use it?"; then
-      dir_themes="${dir_dotfiles}/.triton/.themes"
+      dir_themes="$HOME/.triton/.themes"
       up_trivar "dir_themes" "${dir_themes}"
     else
       error "Themes directory \"$dir_themes\" specified in triton.conf DOES NOT EXIST."
