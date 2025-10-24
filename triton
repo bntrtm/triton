@@ -9,7 +9,7 @@ source "$(dirname "$0")/helpers.sh"
 # =========== FUNCTIONS ============
 
 function usage () {
-  echo "Usage: $0 themes [ init | set | current | ls ]"
+  echo "Usage: $(basename "$0") themes [ init | set | current | ls ]"
   echo "Commands:"
   echo "  init         | writes a triton.conf file under $HOME/.config/triton/, if it does not already exist."
   echo "  set [theme]  | sets corresponding configs from [theme], if it exists"
@@ -53,6 +53,9 @@ case $1 in
         ;;
       "current")
         echo "Your current theme is: ${current_theme}"
+        ;;
+      *)
+        usage; exit 1
         ;;
     esac
     ;;
