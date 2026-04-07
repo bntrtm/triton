@@ -6,6 +6,24 @@ error() {
   exit 1
 }
 
+get_filename() {
+  local filename=$1
+}
+
+# get_basename uses parameter expansion to return all characters
+# right of the last '/' character found within the given argument.
+get_basename() {
+  local arg=$1
+  echo ${arg##*/}
+}
+
+# get_dirname uses parameter expansion to return all characters
+# left of the last '/' character found within the given argument.
+get_dirname() {
+  local arg=$1
+  echo ${arg%/*}
+}
+
 # read user yes-or-no input
 ask() {
   read -p "$1 (Y/n): " response

@@ -2,8 +2,9 @@
 # this tool can print available triton-defined themes, or change current theme.
 
 ## ======== source =========
+SCRIPT_DIR="${0%/*}"
 triconf="$HOME/.config/triton/triton.conf"
-sources=("$(dirname "$0")/helpers.sh" "${triconf}")
+sources=("$SCRIPT_DIR/helpers.sh" "${triconf}")
 for element in ${srcs[@]}; do
   if ! test -f "$element"; then
     echo "WARNING: could not source ${element} for \"$0\"."
@@ -16,8 +17,10 @@ done
 
 # update triton variable $1 with value $2, if it exists
 up_trivar() {
-  if valid_dir "${triconf}"; then
-    sed -i "s@^$1=.*@$1=$2@" "${triconf}"
+  if test -f "${triconf}"; then
+    local content=$(<"${triconf}")
+    local new_content="${content/$1=*/$1=$2}"
+    printf "%s\n" "$new_content" >"${triconf}"
   else
     echo "ERROR: no file \"${triconf}\" found; variable \"$1\" not updated".
   fi
@@ -29,7 +32,7 @@ get_themes() {
   for dir in "$dir_themes"/*/; do
     if test -f "${dir}/.triton/triton_theme.conf"; then
       if grep -q "#TRITON_THEME" "${dir}/.triton/triton_theme.conf"; then
-        themes_array+=("$(basename "$dir")")
+        themes_array+=("$(get_basename "$dir")")
       fi
     fi
   done
@@ -91,9 +94,9 @@ check_nonsyms() {
       check_nonsyms "$item" "$2"
     else
       # If it's a file, ask if an identical file path exists within the $HOME directory
-      if test -f "$HOME/${dot_mirror}/$(basename "$item")"; then
-        if ask "ATTENTION: Non-symlink file found at: $HOME/${dot_mirror}/$(basename "$item"). This must be deleted to set theme to $switchto. Delete file?"; then
-          rm "$HOME/${dot_mirror}/$(basename "$item")"
+      if test -f "$HOME/${dot_mirror}/$(get_basename "$item")"; then
+        if ask "ATTENTION: Non-symlink file found at: $HOME/${dot_mirror}/$(get_basename "$item"). This must be deleted to set theme to $switchto. Delete file?"; then
+          rm "$HOME/${dot_mirror}/$(get_basename "$item")"
         fi
       fi
     fi
@@ -103,7 +106,7 @@ check_nonsyms() {
 write_new_current_theme() {
   if valid_dir "${dir_themes}/$switchto"; then
     for dir in "${dir_themes}/$switchto"/*/; do
-      local dot_mirror="${dir_current_theme}/$(basename "$dir")"
+      local dot_mirror="${dir_current_theme}/$(get_basename "$dir")"
       if valid_dir "$dot_mirror"; then
         ## this should never happen; this provides a failsafe
         # remove the directory if it exists, so that it may be replaced
@@ -123,7 +126,7 @@ unstow_current_theme() {
   # unstow symlinks related to the theme last generated and set by the user
   if [ -d "${dir_current_theme}" ]; then
     for dir in "${dir_current_theme}"/*/; do
-      stow -D -t "$HOME" -d "${dir_current_theme}" "$(basename "$dir")/"
+      stow -D -t "$HOME" -d "${dir_current_theme}" "$(get_basename "$dir")/"
     done
   fi
 }
@@ -151,7 +154,7 @@ stow_current_theme() {
     echo "No stow conflicts detected."
     # there being no conflicts, stow accordingly
     for dir in "${dir_current_theme}"/*/; do
-      stow -t "$HOME" -d "${dir_current_theme}" "$(basename "$dir")/"
+      stow -t "$HOME" -d "${dir_current_theme}" "$(get_basename "$dir")/"
     done
   else
     error "Failed to stow theme: ${switchto}; no current_theme directory generated at expected directory: ${dir_triton}."
@@ -176,7 +179,9 @@ set_theme() {
     write_new_current_theme
     stow_current_theme
   fi
-  sed -i "s/^current_theme=.*/current_theme=\"$switchto\"/" "${triconf}"
+  local content=${triconf}
+  new_content="${content/current_theme=*/current_theme=\"$switchto\"}"
+  printf "%s\n" "$new_content" >"${triconf}"
   if test -f "${dir_themes}/$switchto/.triton/art.txt"; then
     #clear
     cat "${dir_themes}/$switchto/.triton/art.txt"
