@@ -2,14 +2,15 @@
 # Triton is a program used to easily do...pretty much anything I want.
 
 # =========== SOURCE ===========
-source "$(dirname "$0")/config.sh"
-source "$(dirname "$0")/helpers.sh"
-#source "$(dirname "$0")/themetool.sh"
+SCRIPT_DIR="${0%/*}"
+source "$SCRIPT_DIR/helpers.sh"
+source "$(get_dirname "$0")/config.sh"
+#source "$(get_dirname "$0")/themetool.sh"
 
 # =========== FUNCTIONS ============
 
 usage() {
-  echo "Usage: $(basename "$0") themes [ init | set | current | ls ]"
+  echo "Usage: $(get_basename "$0") themes [ init | set | current | ls ]"
   echo "Commands:"
   echo "  init         | writes a triton.conf file under $HOME/.config/triton/, if it does not already exist."
   echo "  set [theme]  | sets corresponding configs from [theme], if it exists"
@@ -37,7 +38,7 @@ case $1 in
   exit 0
   ;;
 "themes")
-  source "$(dirname "$0")/themetool.sh"
+  source "$(get_dirname "$0")/themetool.sh"
   case $2 in
   "set")
     if themename_exists "$3"; then

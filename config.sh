@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")/helpers.sh"
+SCRIPT_DIR="${0%/*}"
+source "$SCRIPT_DIR/helpers.sh"
 
 # creates a config file under the expected directory: $HOME/.config/triton/triton.conf
 write_config_file() {
@@ -7,7 +8,7 @@ write_config_file() {
   if ! test -f "${triconf}"; then
     # make directory, create file
     mkdir -p "$HOME/.config/triton" && touch ${triconf}
-    default="$(dirname "$0")/default_triton.conf"
+    default="$(get_dirname "$0")/default_triton.conf"
     cat ${default} >${triconf}
     echo "Wrote file: ${triconf}"
     user_dir_dotfiles=""
