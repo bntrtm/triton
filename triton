@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Triton is a program used to easily do...pretty much anything I want.
 
 # =========== SOURCE ===========
@@ -8,7 +8,7 @@ source "$(dirname "$0")/helpers.sh"
 
 # =========== FUNCTIONS ============
 
-function usage () {
+function usage() {
   echo "Usage: $(basename "$0") themes [ init | set | current | ls ]"
   echo "Commands:"
   echo "  init         | writes a triton.conf file under $HOME/.config/triton/, if it does not already exist."
@@ -18,7 +18,7 @@ function usage () {
 }
 
 # set theme to $1
-function try_set_theme () {
+function try_set_theme() {
   local warn_list=("delete all symlinks referencing ${dir_triton}/current_theme contents" "delete all contents of ${dir_triton}/current_theme" "replace them with those seen in ${dir_themes}/$switchto")
   echo "Performing this action will: "
   for element in "${warn_list[@]}"; do
@@ -32,37 +32,40 @@ function try_set_theme () {
 # =========== SCRIPT ============
 
 case $1 in
-  "--help" | "-h")
-    usage; exit 0
+"--help" | "-h")
+  usage
+  exit 0
+  ;;
+"themes")
+  source "$(dirname "$0")/themetool.sh"
+  case $2 in
+  "set")
+    if themename_exists "$3"; then
+      switchto="$3"
+      try_set_theme "$3"
+    elif [ -z "$3" ]; then
+      error "no theme provided. Use \"$0 themes ls\" to see available themes."
+    else
+      error "theme \"$3\" does not exist in .themes directory: {dir_themes}.\nUse \"$0 themes ls\" to see available themes."
+    fi
     ;;
-  "themes")
-    source "$(dirname "$0")/themetool.sh"
-    case $2 in
-      "set")
-        if themename_exists "$3"; then
-          switchto="$3"
-          try_set_theme "$3"
-        elif [ -z "$3" ]; then
-          error "no theme provided. Use \"$0 themes ls\" to see available themes."
-        else
-          error "theme \"$3\" does not exist in .themes directory: {dir_themes}.\nUse \"$0 themes ls\" to see available themes."
-        fi
-        ;;
-      "ls")
-        list_themes
-        ;;
-      "current")
-        echo "Your current theme is: ${current_theme}"
-        ;;
-      *)
-        usage; exit 1
-        ;;
-    esac
+  "ls")
+    list_themes
     ;;
-  "init")
-    write_config_file
+  "current")
+    echo "Your current theme is: ${current_theme}"
     ;;
   *)
-    usage; exit 1
+    usage
+    exit 1
     ;;
+  esac
+  ;;
+"init")
+  write_config_file
+  ;;
+*)
+  usage
+  exit 1
+  ;;
 esac
