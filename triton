@@ -8,7 +8,7 @@ source "$(dirname "$0")/helpers.sh"
 
 # =========== FUNCTIONS ============
 
-function usage() {
+usage() {
   echo "Usage: $(basename "$0") themes [ init | set | current | ls ]"
   echo "Commands:"
   echo "  init         | writes a triton.conf file under $HOME/.config/triton/, if it does not already exist."
@@ -18,7 +18,7 @@ function usage() {
 }
 
 # set theme to $1
-function try_set_theme() {
+try_set_theme() {
   local warn_list=("delete all symlinks referencing ${dir_triton}/current_theme contents" "delete all contents of ${dir_triton}/current_theme" "replace them with those seen in ${dir_themes}/$switchto")
   echo "Performing this action will: "
   for element in "${warn_list[@]}"; do
@@ -41,7 +41,6 @@ case $1 in
   case $2 in
   "set")
     if themename_exists "$3"; then
-      switchto="$3"
       try_set_theme "$3"
     elif [ -z "$3" ]; then
       error "no theme provided. Use \"$0 themes ls\" to see available themes."
