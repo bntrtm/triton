@@ -2,16 +2,12 @@
 # this tool can print available triton-defined themes, or change current theme.
 
 ## ======== source =========
-SCRIPT_DIR="${0%/*}"
 triconf="$HOME/.config/triton/triton.conf"
-sources=("$SCRIPT_DIR/helpers.sh" "${triconf}")
-for element in ${srcs[@]}; do
-  if ! test -f "$element"; then
-    echo "WARNING: could not source ${element} for \"$0\"."
-  else
-    source "${element}"
-  fi
-done
+if [ ! -f "$triconf" ]; then
+  echo "WARNING: Config file 'triton.conf' missing from '$(get_dirname "${triconf}")'."
+else
+  source "${triconf}"
+fi
 
 ## ======== functions ========
 
@@ -22,7 +18,7 @@ up_trivar() {
     local new_content="${content/$1=*/$1=$2}"
     printf "%s\n" "$new_content" >"${triconf}"
   else
-    echo "ERROR: no file \"${triconf}\" found; variable \"$1\" not updated".
+    echo "ERROR: no file '${triconf}' found; variable '$1' not updated".
   fi
 }
 
@@ -30,9 +26,11 @@ up_trivar() {
 get_themes() {
   themes_array=()
   for dir in "$dir_themes"/*/; do
-    if test -f "${dir}/.triton/triton_theme.conf"; then
-      if grep -q "#TRITON_THEME" "${dir}/.triton/triton_theme.conf"; then
-        themes_array+=("$(get_basename "$dir")")
+    local clean_dir="${dir%/}"
+
+    if test -f "${clean_dir}/.triton/triton_theme.conf"; then
+      if grep -q "#TRITON_THEME" "${clean_dir}/.triton/triton_theme.conf"; then
+        themes_array+=("$(get_basename "$clean_dir")")
       fi
     fi
   done
@@ -41,7 +39,9 @@ get_themes() {
 list_themes() {
   get_themes
   echo "AVAILABLE THEMES: "
-  echo ${themes_array[@]} | tr ' ' '\n' | sed 's/^/- /'
+  for theme in "${themes_array[@]}"; do
+    echo "- $theme"
+  done
 }
 
 themename_exists() {
@@ -194,31 +194,31 @@ set_theme() {
 }
 
 ### ========= SCRIPT =========
-
-## ======== check expectations =========
-# check whether a triton config file exists
-if ! test -f "${triconf}"; then
-  echo "ERROR: No triton.conf file was found under desired path \"$HOME/.config/triton/\"."
-  echo "       To create one now, run: triton init"
-  exit 1
-fi
-# check whether a dir_themes variable is specified in triton.conf
-if ! valid_dir "${dir_themes}"; then
-  if valid_dir "$HOME/.triton/.themes"; then
-    echo "NOTICE: .themes directory \"${dir_themes}\" specified in triton.conf DOES NOT EXIST. "
-    if ask "A .themes directory was found in expected directory: ${dir_triton}. Would you like to use it?"; then
-      dir_themes="$HOME/.triton/.themes"
-      up_trivar "dir_themes" "${dir_themes}"
+validate_themetool() {
+  # check whether a triton config file exists
+  if ! test -f "${triconf}"; then
+    echo "ERROR: No triton.conf file was found under desired path \"$HOME/.config/triton/\"."
+    echo "       To create one now, run: triton init"
+    exit 1
+  fi
+  # check whether a dir_themes variable is specified in triton.conf
+  if ! valid_dir "${dir_themes}"; then
+    if valid_dir "$HOME/.triton/.themes"; then
+      echo "NOTICE: .themes directory \"${dir_themes}\" specified in triton.conf DOES NOT EXIST. "
+      if ask "A .themes directory was found in expected directory: ${dir_triton}. Would you like to use it?"; then
+        dir_themes="$HOME/.triton/.themes"
+        up_trivar "dir_themes" "${dir_themes}"
+      else
+        error "Themes directory \"$dir_themes\" specified in triton.conf DOES NOT EXIST."
+        exit 1
+      fi
     else
       error "Themes directory \"$dir_themes\" specified in triton.conf DOES NOT EXIST."
       exit 1
     fi
-  else
-    error "Themes directory \"$dir_themes\" specified in triton.conf DOES NOT EXIST."
-    exit 1
   fi
-fi
-# ensure GNU-Stow is installed
-if ! check_command "stow" "GNU-Stow"; then
-  error "$0 could not initialize; GNU-Stow is required for triton to run."
-fi
+  # ensure GNU-Stow is installed
+  if ! check_command "stow" "GNU-Stow"; then
+    error "$0 could not initialize; GNU-Stow is required for triton to run."
+  fi
+}

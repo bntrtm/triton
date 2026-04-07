@@ -2,10 +2,20 @@
 # Triton is a program used to easily do...pretty much anything I want.
 
 # =========== SOURCE ===========
-SCRIPT_DIR="${0%/*}"
-source "$SCRIPT_DIR/helpers.sh"
+export TRITON_SCRIPT_DIR="${0%/*}"
+source "$TRITON_SCRIPT_DIR/helpers.sh"
 source "$(get_dirname "$0")/config.sh"
-#source "$(get_dirname "$0")/themetool.sh"
+
+try_init() {
+  if [[ "$1" == "init" ]]; then
+    write_config_file
+    exit 0
+  fi
+}
+try_init "$1"
+
+source "$(get_dirname "$0")/themetool.sh"
+validate_themetool
 
 # =========== FUNCTIONS ============
 
@@ -62,7 +72,7 @@ case $1 in
   esac
   ;;
 "init")
-  write_config_file
+  try_init "$1"
   ;;
 *)
   usage
