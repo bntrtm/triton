@@ -31,7 +31,7 @@ usage() {
 # set theme to $1
 try_set_theme() {
   local warn_list=("delete all symlinks referencing ${dir_triton}/current_theme contents" "delete all contents of ${dir_triton}/current_theme" "replace them with those seen in ${dir_themes}/$switchto")
-  echo "Performing this action will: "
+  warn "Performing this action will: "
   for element in "${warn_list[@]}"; do
     echo " - $element"
   done

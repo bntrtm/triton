@@ -8,11 +8,9 @@ write_config_file() {
     mkdir -p "$HOME/.config/triton" && touch ${triconf}
     default="$(get_dirname "$0")/default_triton.conf"
     cat ${default} >${triconf}
-    echo "Wrote file: ${triconf}"
+    info "Wrote file: ${triconf}"
     user_dir_dotfiles=""
-    #askpath "dotfiles" user_dir_dotfiles
-    #sed -i "s@^dir_dotfiles=.*@dir_dotfiles=${user_dir_dotfiles}@" "${triconf}"
   else
-    echo "DENIED: ${triconf} already written."
+    info "DENIED: ${triconf} already exists."
   fi
 }

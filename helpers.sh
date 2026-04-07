@@ -1,9 +1,26 @@
 #!/usr/bin/env bash
 
+log() {
+  local level=$1
+  local message=$2
+  echo "[${1}] ${2}"
+}
+
 error() {
-  echo -n "ERROR: "
-  echo -e "$1" # error message
+  log "ERROR" "$1"
   exit 1
+}
+
+warn() {
+  log "WARN" "$1"
+}
+
+info() {
+  log "INFO" "$1"
+}
+
+debug() {
+  log "DEBUG" "$1"
 }
 
 get_filename() {
@@ -37,7 +54,7 @@ askpath() {
     read -e -p "Provide a directory path for $1: " -i "$HOME/" response
     ref="${response}"
     if [[ ! -d "${ref}" ]]; then
-      echo "$ref is not a valid directory."
+      warn "$ref is not a valid directory."
     fi
   done
 }
@@ -47,17 +64,13 @@ askpath() {
 check_command() {
   if ! command -v "$1" &>/dev/null; then
     if [[ -z "$2" ]]; then
-      echo "check_command: \"$1\" not a valid command; corresponding program may not be installed."
+      arn "check_command: \"$1\" not a valid command; corresponding program may not be installed."
       return 1
     else
-      echo "check_command: \"$1\" not a valid command; $2 is not installed."
+      warn "check_command: \"$1\" not a valid command; $2 is not installed."
       return 1
     fi
   else
     return 0
   fi
 }
-
-#var1="replace_this_value"
-#askpath "dotfiles" var1
-#echo "$var1"
