@@ -2,8 +2,8 @@
 source "$(dirname "$0")/helpers.sh"
 
 # creates a config file under the expected directory: $HOME/.config/triton/triton.conf
-function write_config_file() {
-  triconf="$HOME/.config/triton/triton.conf"
+write_config_file() {
+  local triconf="$HOME/.config/triton/triton.conf"
   if ! test -f "${triconf}"; then
     # make directory, create file
     mkdir -p "$HOME/.config/triton" && touch ${triconf}

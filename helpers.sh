@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
-function error() {
+error() {
   echo -n "ERROR: "
   echo -e "$1" # error message
   exit 1
 }
 
 # read user yes-or-no input
-function ask() {
+ask() {
   read -p "$1 (Y/n): " response
   [ -z "$response" ] || [ "$response" = "Y" ]
 }
 
 # run until user-specified directory for $1 does indeed exist, then set ref $2 to that path
-function askpath() {
+askpath() {
   declare -n ref=$2
   until test -d "${ref}"; do
     read -e -p "Provide a directory path for $1: " -i "$HOME/" response
@@ -26,7 +26,7 @@ function askpath() {
 
 # check that command can run; used to check for dependencies
 # $1 is the command to check for; $2 is a formal name for the program to install
-function check_command() {
+check_command() {
   if ! command -v "$1" &>/dev/null; then
     if [ -z "$2" ]; then
       echo "check_command: \"$1\" not a valid command; corresponding program may not be installed."
