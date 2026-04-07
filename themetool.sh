@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # this tool can print available triton-defined themes, or change current theme.
 
 ## ======== source =========
 triconf="$HOME/.config/triton/triton.conf"
-srcs=( "$(dirname "$0")/helpers.sh" "${triconf}")
+srcs=("$(dirname "$0")/helpers.sh" "${triconf}")
 for element in ${srcs[@]}; do
   if ! test -f "$element"; then
     echo "WARNING: could not source ${element} for \"$0\"."
@@ -15,7 +15,7 @@ done
 ## ======== functions ========
 
 # update triton variable $1 with value $2, if it exists
-function up_trivar () {
+function up_trivar() {
   if valid_dir "${triconf}"; then
     sed -i "s@^$1=.*@$1=$2@" "${triconf}"
   else
@@ -24,7 +24,7 @@ function up_trivar () {
 }
 
 # set/clear a themes_array and fill it with names based on directories within dir_themes which contain a triton_theme.conf file
-function get_themes () {
+function get_themes() {
   themes_array=()
   for dir in "$dir_themes"/*/; do
     if test -f "${dir}/.triton/triton_theme.conf"; then
@@ -35,18 +35,18 @@ function get_themes () {
   done
 }
 
-function list_themes () {
+function list_themes() {
   get_themes
   echo "AVAILABLE THEMES: "
-  echo  ${themes_array[@]} | tr ' ' '\n' | sed 's/^/- /'
+  echo ${themes_array[@]} | tr ' ' '\n' | sed 's/^/- /'
 }
 
-function themename_exists () {
+function themename_exists() {
   get_themes
-  [[ " ${themes_array[@]} " =~  " $1 " ]]
+  [[ " ${themes_array[@]} " =~ " $1 " ]]
 }
 
-function valid_dir () {
+function valid_dir() {
   if [ "$2" = "-o" ] || [ "$2" == "--output" ]; then
     echo -n "Directory $1 is "
     if [ -d "$1" ]; then
@@ -60,7 +60,7 @@ function valid_dir () {
 
 # Check for potential stow conflicts with file paths, then ask the user to confirm deletion of each before continuing
 # $1 should be the directory to look through
-function check_stow_conflicts () {
+function check_stow_conflicts() {
   paths=($(find $1 -type f))
   for path in "${paths[@]}"; do
     local dotmirror="$HOME/${path/$1/}"
@@ -77,7 +77,7 @@ function check_stow_conflicts () {
 
 # Recursively loop through a directory and check for potential stow conflicts
 # $1 is the base directory to loop through, $2 is the basename of the original directory
-function check_nonsyms () {
+function check_nonsyms() {
   if ! valid_dir "$1"; then
     error "loop_directory: no valid directory \"$1\""
   fi
@@ -100,7 +100,7 @@ function check_nonsyms () {
   done
 }
 
-function write_new_current_theme () {
+function write_new_current_theme() {
   if valid_dir "${dir_themes}/$switchto"; then
     for dir in "${dir_themes}/$switchto"/*/; do
       local dotmir="${dir_current_theme}/$(basename "$dir")"
@@ -119,8 +119,8 @@ function write_new_current_theme () {
   fi
 }
 
-function unstow_current_theme () {
-# unstow symlinks related to the theme last generated and set by the user
+function unstow_current_theme() {
+  # unstow symlinks related to the theme last generated and set by the user
   if [ -d "${dir_current_theme}" ]; then
     for dir in "${dir_current_theme}"/*/; do
       stow -D -t "$HOME" -d "${dir_current_theme}" "$(basename "$dir")/"
@@ -129,7 +129,7 @@ function unstow_current_theme () {
 }
 
 # generate the current_theme files, then stow them into the $HOME directory.
-function write_current_theme_dir () {
+function write_current_theme_dir() {
   if [ -d "${dir_triton}" ]; then
     if [ -d "${dir_current_theme}" ]; then
       rm -rf "${dir_current_theme}"
@@ -141,8 +141,8 @@ function write_current_theme_dir () {
   fi
 }
 
-function stow_current_theme () {
-# stow symlinks to dir_current_theme/ contents
+function stow_current_theme() {
+  # stow symlinks to dir_current_theme/ contents
   if [ -d "${dir_current_theme}" ]; then
     # scan directory for potential conflicts
     for dir in "${dir_current_theme}"/*/; do
@@ -158,19 +158,19 @@ function stow_current_theme () {
   fi
 }
 
-function set_theme () {
+function set_theme() {
   get_themes
   if ! themename_exists $1; then
     error "Theme \"$1\" does not exist in {dir_themes}."
   else
     switchto=$1
-  # ensure theme dependencies are installed
-  source "${dir_themes}/${switchto}/.triton/triton_theme.conf"
-  for dep in "${theme_dependencies[@]}"; do
-    if ! check_command "$dep"; then
-      error "Dependency \"$dep\" for theme \"$switchto\" is not installed."
-    fi
-  done
+    # ensure theme dependencies are installed
+    source "${dir_themes}/${switchto}/.triton/triton_theme.conf"
+    for dep in "${theme_dependencies[@]}"; do
+      if ! check_command "$dep"; then
+        error "Dependency \"$dep\" for theme \"$switchto\" is not installed."
+      fi
+    done
     unstow_current_theme
     write_current_theme_dir
     write_new_current_theme
@@ -217,4 +217,3 @@ fi
 if ! check_command "stow" "GNU-Stow"; then
   error "$0 could not initialize; GNU-Stow is required for triton to run."
 fi
-
