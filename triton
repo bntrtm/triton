@@ -53,7 +53,7 @@ case $1 in
   "set")
     if themename_exists "$3"; then
       try_set_theme "$3"
-    elif [ -z "$3" ]; then
+    elif [[ -z "$3" ]]; then
       error "no theme provided. Use \"$0 themes ls\" to see available themes."
     else
       error "theme \"$3\" does not exist in .themes directory: {dir_themes}.\nUse \"$0 themes ls\" to see available themes."
