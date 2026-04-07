@@ -4,7 +4,7 @@
 ## ======== source =========
 triconf="$HOME/.config/triton/triton.conf"
 if [[ ! -f "$triconf" ]]; then
-  echo "WARNING: Config file 'triton.conf' missing from '$(get_dirname "${triconf}")'."
+  warn "Config file 'triton.conf' missing from '$(get_dirname "${triconf}")'."
 else
   source "${triconf}"
 fi
@@ -18,7 +18,7 @@ up_trivar() {
     local new_content="${content/$1=*/$1=$2}"
     printf "%s\n" "$new_content" >"${triconf}"
   else
-    echo "ERROR: no file '${triconf}' found; variable '$1' not updated".
+    error "no file '${triconf}' found; variable '$1' not updated".
   fi
 }
 
@@ -51,12 +51,13 @@ themename_exists() {
 
 valid_dir() {
   if [[ "$2" = "-o" ]] || [[ "$2" == "--output" ]]; then
-    echo -n "Directory $1 is "
+    local status='either valid or invalid.'
     if [[ -d "$1" ]]; then
-      echo "VALID."
+      status='VALID'
     else
-      echo "INVALID."
+      status='INVALID'
     fi
+    debug "Directory $1 is $status"
   fi
   [[ -d "$1" ]]
 }
@@ -67,7 +68,7 @@ check_stow_conflicts() {
   local paths=($(find $1 -type f))
   for path in "${paths[@]}"; do
     local dot_mirror="$HOME/${path/$1/}"
-    echo "dot_mirror == ${dot_mirror}"
+    debug "dot_mirror == ${dot_mirror}"
     if [[ -f "${dot_mirror}" ]]; then
       if ask "CONFLICT: Non-symlink file found at: ${dot_mirror}. This must be deleted to set theme to $switchto. Delete file?"; then
         rm "${dot_mirror}"
@@ -116,7 +117,7 @@ write_new_current_theme() {
       else
         # copy desired $switchto subdirectory to new current_theme directory
         cp -ra "$dir" "${dir_current_theme}"
-        echo "cp -ra $dir TO ${dir_current_theme}"
+        debug "cp -ra $dir TO ${dir_current_theme}"
       fi
     done
   fi
@@ -151,7 +152,7 @@ stow_current_theme() {
     for dir in "${dir_current_theme}"/*/; do
       check_stow_conflicts "$dir"
     done
-    echo "No stow conflicts detected."
+    info "No stow conflicts detected."
     # there being no conflicts, stow accordingly
     for dir in "${dir_current_theme}"/*/; do
       stow -t "$HOME" -d "${dir_current_theme}" "$(get_basename "$dir")/"
@@ -189,7 +190,7 @@ set_theme() {
   if [[ -f "${dir_themes}/${switchto}/.triton/reload.sh" ]] && grep -q "#TRITON_RELOAD" "${dir_themes}/${switchto}/.triton/reload.sh"; then
     bash "${dir_themes}/${switchto}/.triton/reload.sh"
   else
-    echo "NOTICE: no triton \"reload.sh\" script found at \"${dir_themes}/{switchto}/.triton\"."
+    warn "no triton \"reload.sh\" script found at \"${dir_themes}/${switchto}/.triton\"."
   fi
 }
 
@@ -197,14 +198,13 @@ set_theme() {
 validate_themetool() {
   # check whether a triton config file exists
   if ! [[ -f "${triconf}" ]]; then
-    echo "ERROR: No triton.conf file was found under desired path \"$HOME/.config/triton/\"."
-    echo "       To create one now, run: triton init"
+    error "No triton.conf file was found under desired path \"$HOME/.config/triton/\". To create one now, run: triton init"
     exit 1
   fi
   # check whether a dir_themes variable is specified in triton.conf
   if ! valid_dir "${dir_themes}"; then
     if valid_dir "$HOME/.triton/.themes"; then
-      echo "NOTICE: .themes directory \"${dir_themes}\" specified in triton.conf DOES NOT EXIST. "
+      warn ".themes directory \"${dir_themes}\" specified in triton.conf DOES NOT EXIST. "
       if ask "A .themes directory was found in expected directory: ${dir_triton}. Would you like to use it?"; then
         dir_themes="$HOME/.triton/.themes"
         up_trivar "dir_themes" "${dir_themes}"
