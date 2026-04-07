@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-SCRIPT_DIR="${0%/*}"
-source "$SCRIPT_DIR/helpers.sh"
 
 # creates a config file under the expected directory: $HOME/.config/triton/triton.conf
 write_config_file() {
